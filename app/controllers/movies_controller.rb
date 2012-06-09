@@ -7,20 +7,21 @@ class MoviesController < ApplicationController
   end
 
   def index
+    # Processing params to get filters
     if params[:sort]
       @sortcol = params[:sort]
-      @movies = Movie.find(:all, :order => @sortcol)
+    end
+    @rating_params = Hash.new
+    if params[:ratings]
+      @rating_params[:ratings] = params[:ratings]
+      @rating_filters = params[:ratings].keys
+      filters = {:rating => @rating_filters}
     elsif
-      @movies = Movie.all      
+      @rating_filters = Hash.new
     end
-  end
 
-  def list
-    @movies = Movie.all
-    @foo = "not sorteddd"
-    if params[:sort]
-      @foo = "sorteddd"
-    end
+    @movies = Movie.where(filters).order(@sortcol)
+    @all_ratings = Movie.ratings
   end
 
   def new
