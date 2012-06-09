@@ -7,7 +7,8 @@ class MoviesController < ApplicationController
   end
 
   def index
-    # Processing params to get filters
+    
+    # Processing params to get search filters
     if params[:sort]
       @sortcol = params[:sort]
     end
@@ -20,8 +21,17 @@ class MoviesController < ApplicationController
       @rating_filters = Hash.new
     end
 
+    # Session control. If no filters from request, maybe from session
+    if not filters and not @sortcol and session[:params]
+      redirect_to movies_path(session[:params])
+    end
+
+    # Search / load data for render
     @movies = Movie.where(filters).order(@sortcol)
     @all_ratings = Movie.ratings
+    
+    # Session control
+    session[:params] = @rating_params.merge({:sort => @sortcol})
   end
 
   def new
